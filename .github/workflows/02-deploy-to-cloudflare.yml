@@ -16,16 +16,25 @@ jobs:
   deploy_cloudflare_worker:
     runs-on: ubuntu-latest
     name: Deploy Cloudflare Worker
+
     steps:
       - uses: actions/checkout@v3
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Render Config
         run: |
           python render-configs.py
+
       - name: Populate wrangler.toml
         run: |
           >wrangler.toml
           echo "name = \"${{ env.CLOUDFLARE_WORKER_NAME }}\"" >>wrangler.toml
           echo compatibility_date = \"2023-05-30\" >>wrangler.toml
+
       - name: Store Secrets and Deploy
         uses: cloudflare/wrangler-action@2.0.0
         with:
@@ -35,6 +44,7 @@ jobs:
             BLUESKY_APP_PASSWORD
           command: |
             deploy cloudflare-worker/worker.js
+
       - name: Cleanup wrangler.toml
         run: |
           rm -f wrangler.toml
