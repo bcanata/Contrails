@@ -37,9 +37,6 @@ jobs:
           echo "name = \"${{ env.CLOUDFLARE_WORKER_NAME }}\"" >>wrangler.toml
           echo compatibility_date = \"2023-05-30\" >>wrangler.toml
 
-      - name: Authenticate Wrangler
-        run: wrangler config --api-token="${{ env.CLOUDFLARE_API_TOKEN }}"
-
       - name: Deploy with Wrangler
         run: |
           export BLUESKY_HANDLE=${{ env.BLUESKY_HANDLE }}
