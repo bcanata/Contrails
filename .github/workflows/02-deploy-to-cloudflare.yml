@@ -25,9 +25,11 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install Wrangler
+        run: npm install -g wrangler@4.7.2
+
       - name: Render Config
-        run: |
-          python render-configs.py
+        run: python render-configs.py
 
       - name: Populate wrangler.toml
         run: |
@@ -35,16 +37,14 @@ jobs:
           echo "name = \"${{ env.CLOUDFLARE_WORKER_NAME }}\"" >>wrangler.toml
           echo compatibility_date = \"2023-05-30\" >>wrangler.toml
 
-      - name: Store Secrets and Deploy
-        uses: cloudflare/wrangler-action@2.0.0
-        with:
-          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
-          secrets: |
-            BLUESKY_HANDLE
-            BLUESKY_APP_PASSWORD
-          command: |
-            deploy cloudflare-worker/worker.js
+      - name: Authenticate Wrangler
+        run: wrangler config --api-token="${{ env.CLOUDFLARE_API_TOKEN }}"
+
+      - name: Deploy with Wrangler
+        run: |
+          export BLUESKY_HANDLE=${{ env.BLUESKY_HANDLE }}
+          export BLUESKY_APP_PASSWORD=${{ env.BLUESKY_APP_PASSWORD }}
+          wrangler deploy cloudflare-worker/worker.js
 
       - name: Cleanup wrangler.toml
-        run: |
-          rm -f wrangler.toml
+        run: rm -f wrangler.toml
